@@ -3,7 +3,7 @@ import logging
 from typing import Optional
 from kombu.mixins import ConsumerMixin
 from kombu import Connection
-from reiter.amqp.mq import AMQPCenter
+from reiter.amqp.mq import AMQPCenter, AMQP
 
 
 class Worker(ConsumerMixin):
