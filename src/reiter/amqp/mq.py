@@ -25,12 +25,12 @@ class AMQPCenter:
         self._consumers.append(consumer)
         return consumer
 
-    def consumers(self, app, cls, channel):
+    def consumers(self, cls, channel, **context):
         for consumer in self._consumers:
             yield cls(
                 [self.queues[q] for q in consumer.queues],
                 accept=consumer.accept,
-                callbacks=[consumer(app)]
+                callbacks=[consumer(**context)]
             )
 
 
