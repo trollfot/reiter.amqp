@@ -1,4 +1,5 @@
 from kombu import Exchange, Connection
+from kombu.pools import producers
 
 
 class AMQPEmitter:

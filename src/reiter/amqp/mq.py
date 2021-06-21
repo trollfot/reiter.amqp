@@ -44,6 +44,6 @@ class TestConsumer(CustomConsumer):
     accept = ['pickle', 'json']
 
     def __call__(self, body, message):
-        logging.info("Got task body: %s", body)
-        logging.info("Got task Message: %s", message)
+        print("Got task body: %s", body)
+        print("Got task Message: %s", message)
         message.ack()
