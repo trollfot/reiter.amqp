@@ -4,7 +4,7 @@ from typing import Optional, Any
 from kombu.mixins import ConsumerMixin
 from kombu import Connection
 from functools import partial
-from reiter.amqp.mq import AMQPCenter, AMQP
+from reiter.amqp.mq import AMQPCenter
 
 
 class Consumer(ConsumerMixin):

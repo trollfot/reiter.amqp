@@ -1,24 +1,17 @@
-import logging
-from typing import Dict, List
-from kombu import Exchange, Queue
-from kombu.pools import producers
+import inspect
+from functools import partial
+from typing import Dict, List, Union, Type
+from kombu import Queue
 from reiter.amqp.meta import CustomConsumer
 
 
 class AMQPCenter:
 
-    exchange: Exchange = Exchange('object_events', type='topic')
-    consumers: List[CustomConsumer]
-    queues: Dict[str, Queue] = {
-        'add': Queue(
-            'add', exchange, routing_key='object.add'),
-        'delete': Queue(
-            'delete', exchange, routing_key='object.delete'),
-        'update': Queue(
-            'update', exchange, routing_key='object.update'),
-    }
+    consumers: List[Union[CustomConsumer, Type[CustomConsumer]]]
+    queues: Dict[str, Queue]
 
-    def __init__(self, *consumers):
+    def __init__(self, queues, *consumers):
+        self.queues = queues
         self._consumers = list(consumers)
 
     def consumer(self, consumer: CustomConsumer):
@@ -27,23 +20,12 @@ class AMQPCenter:
 
     def consumers(self, cls, channel, **context):
         for consumer in self._consumers:
+            if inspect.isclass(consumer) or isinstance(consumer, partial):
+                call = consumer(**context)
+            else:
+                call = consumer
             yield cls(
-                [self.queues[q] for q in consumer.queues],
-                accept=consumer.accept,
-                callbacks=[consumer(**context)]
+                [self.queues[q] for q in call.queues],
+                accept=call.accept,
+                callbacks=[call]
             )
-
-
-AMQP = AMQPCenter()
-
-
-@AMQP.consumer
-class TestConsumer(CustomConsumer):
-
-    queues = ['add', 'update']
-    accept = ['pickle', 'json']
-
-    def __call__(self, body, message):
-        print("Got task body: %s", body)
-        print("Got task Message: %s", message)
-        message.ack()

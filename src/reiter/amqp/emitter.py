@@ -4,10 +4,12 @@ from kombu.pools import producers
 
 class AMQPEmitter:
 
-    def __init__(self, url="amqp://localhost:5672//", serializer="json"):
+    def __init__(self, exchange,
+                 url="amqp://localhost:5672//",
+                 serializer="json"):
         self.url = url
         self.serializer = serializer
-        self.exchange = Exchange("object_events", type="topic")
+        self.exchange = exchange
 
     def send(self, payload, key):
         with Connection(self.url) as conn:
